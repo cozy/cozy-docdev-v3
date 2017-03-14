@@ -5,12 +5,12 @@
  - Introduction (To Be Done) ;
  - [Stack reference](https://cozy.github.io/cozy-stack/);
  - [cozy-client-js reference](https://cozy.github.io/cozy-client-js/);
- - [cozy-bar reerence](https://github.com/cozy/cozy-bar#whats-cozy-barjs);
+ - [cozy-bar reference](https://github.com/cozy/cozy-bar#whats-cozy-barjs);
  - [Cozy UI reference](https://github.com/cozy/cozy-ui/tree/v3#use);
 
 ## French
 
- - [Introduction](/fr/intro) ;
+ - [Introduction](fr/intro) ;
 
 
 ## What is Cozy?
