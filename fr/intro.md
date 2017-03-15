@@ -64,9 +64,9 @@ Nous reviendrons plus tard sur ces deux bibliothèques.
 Accéder à l'API du serveur nécessite d'avoir trois informations :
  - son URL : on l'obtient via la variable `{{.Domain}}` ;
  - le jeton authentifiant l'application, communiqué via la variable `{{.Token}}` ;
- - un /cookie/ de session, fourni lors de l’authentification auprès de votre serveur. Ce /cookie/ ne peut pas être accédé via Javascript, cela garantit donc qu'un script ne peut pas le voler et que les requêtes sont bien effectuées par une application.
+ - un *cookie* de session, fourni lors de l’authentification auprès de votre serveur. Ce *cookie* ne peut pas être accédé via Javascript, cela garantit donc qu'un script ne peut pas le voler et que les requêtes sont bien effectuées par une application.
 
-Chaque requête à l'API doit comporter le /cookie/ et le jeton, transmis via un entête `Authorization` de type `bearer`.
+Chaque requête à l'API doit comporter le *cookie* et le jeton, transmis via un entête `Authorization` de type `bearer`.
 
 Pour récupérer le jeton et envoyer une requête à l'application, vous pouvez donc utiliser un code tel que :
 ```html
@@ -129,7 +129,7 @@ Pour accéder à la plupart des API disponibles, l'application doit demander la 
 
 Toutes ses fonctions sont disponibles dans l’objet global `window.cozy.client`.
 
-Cette bibliothèque enrobe les API du serveur qui permettent de gérer l’authentification et les paramètres du serveur, et de manipuler documents et fichiers. Elle offre également des méthodes utiles pour permettre aux applications de fonctionner sans connexion réseau (mode /offline/).
+Cette bibliothèque enrobe les API du serveur qui permettent de gérer l’authentification et les paramètres du serveur, et de manipuler documents et fichiers. Elle offre également des méthodes utiles pour permettre aux applications de fonctionner sans connexion réseau (mode *offline*).
 
 On peut utiliser la bibliothèque de deux manières : soit en créant un nouvel objet et appelant ses méthodes, soit en appelant directement les fonctions de l’objet global. Dans ce dernier cas, un appel initial à `cozy.client.init()` est requis. Lors de l’initialisation, deux options sont requises : l’URL du point d’entrée de l’API, et le jeton d’authentification.
 
