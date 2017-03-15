@@ -10,7 +10,7 @@
 
 ## French
 
- - [Introduction](fr/intro) ;
+ - [Introduction](fr/intro.md) ;
 
 
 ## What is Cozy?
