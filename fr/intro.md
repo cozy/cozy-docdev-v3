@@ -202,7 +202,7 @@ La recherche utilise l’API [Mango](https://github.com/cloudant/mango) disponib
 
 La bibliothèque `cozy.client` offre de nombreuses méthodes pour manipuler les fichiers, regroupées dans l’espace de nom `cozy.client.files`. Par exemple :
  - `create()` et `updateById()` pour créer et mettre à jour un fichier ;
- - `createDirectory()` pour supprimer un dossier ;
+ - `createDirectory()` pour créer un dossier ;
  - `updateAttributesById()` et `updateAttributesByPath()` pour modifier les meta-données ;
  - pour supprimer un fichier ou un dossier, on peut soit le déplacer dans une poubelle (`trashById()`) d’où il sera possible de le récupérer via `restoreById()`, soit l’éradiquer définitivement avec `destroyById (`trashById()`). On peut également afficher le contenu de la poubelle (`listTrash()`) et supprimer l’ensemble de son contenu (`clearTrash()`). 
  - `downloadById(id)` et `downloadByPath(path)` permettent de télécharger un fichier ;
