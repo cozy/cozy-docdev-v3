@@ -135,7 +135,7 @@ Cette bibliothèque enrobe les API du serveur qui permettent de gérer l’authe
 
 On peut utiliser la bibliothèque de deux manières : soit en créant un nouvel objet et appelant ses méthodes, soit en appelant directement les fonctions de l’objet global. Dans ce dernier cas, un appel initial à `cozy.client.init()` est requis. Lors de l’initialisation, deux options sont requises : l’URL du point d’entrée de l’API, et le jeton d’authentification.
 
-Par ailleurs, on peut utiliser deux paradigmes de programmation avec la bibliothèque : par défaut, chaque méthode retourne une `Promise`, mais vous pouvez aussi utiliser des fonctions de rappel. Il suffit pour cela de passer l’option `disablePromises: false` à la bibliothèque.
+Par ailleurs, on peut utiliser deux paradigmes de programmation avec la bibliothèque : par défaut, chaque méthode retourne une `Promise`, mais vous pouvez aussi utiliser des fonctions de rappel. Il suffit pour cela de passer l’option `disablePromises: true` à la bibliothèque.
 
 Voici quelques exemples d’utilisation :
 
