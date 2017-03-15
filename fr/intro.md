@@ -1,3 +1,5 @@
+{% raw %}
+
 # Développer une application pour Cozy V3
 
 Dans Cozy V3, toutes les applications sont des applications HTML5 exécutées dans le navigateur et communiquant avec l'API du serveur. Pour développer une application, vous aurez donc besoin de disposer d'un serveur exposant l'API Cozy.
@@ -272,3 +274,5 @@ TODO
 ## Administrer l'instance de développement.
 
 Vous pouvez ouvrir une console dans l'instance de développement au moyen de `docker exec -ti cozydev /bin/bash`. Cela vous permet d'utiliser la commande `cozy-stack` pour administrer l'instance.
+
+{% endraw %}
