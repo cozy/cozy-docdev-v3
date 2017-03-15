@@ -173,7 +173,7 @@ Ce tutoriel ne vise qu’à faire un tour d’horizon des principales fonctionna
 
 #### Manipuler des documents
 
-Dans Cozy, tous les documents ont un type. Pour éviter que plusieurs applications ne créent le même type de documents avec des formats différents, nous avons décider de nommer les types en suivant [la spécification Java](https://docs.oracle.com/javase/specs/jls/se8/html/jls-6.html#d5e8195) : tous les types de documents sont donc préfixés par un nom de domaine écrit à l’envers ou, si vous ne possédez pas de nom de domaine, par votre adresse de courriel. Les types définis par Cozy sont préfixés par `io.cozy.` ou `io.cozy.labs`. Si votre adresse est `toto@nuage.douye`, préfixez vos types par `douye.nuage.toto`. Vous n’avez évidemment pas le droit de modifier des types de documents ne vous « appartenant » pas.
+Dans Cozy, tous les documents ont un type. Pour éviter que plusieurs applications ne créent le même type de documents avec des formats différents, nous avons décidé de nommer les types en suivant [la spécification Java](https://docs.oracle.com/javase/specs/jls/se8/html/jls-6.html#d5e8195) : tous les types de documents sont donc préfixés par un nom de domaine écrit à l’envers ou, si vous ne possédez pas de nom de domaine, par votre adresse de courriel. Les types définis par Cozy sont préfixés par `io.cozy.` ou `io.cozy.labs`. Si votre adresse est `toto@nuage.douye`, préfixez vos types par `douye.nuage.toto`. Vous n’avez évidemment pas le droit de modifier des types de documents ne vous « appartenant » pas.
 
 Rappel : pour pouvoir accéder à des documents, vous devez explicitement en avoir demandé la permission dans le manifeste de votre application.
 
