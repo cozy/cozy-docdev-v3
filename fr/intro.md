@@ -6,6 +6,8 @@ Dans Cozy V3, toutes les applications sont des applications HTML5 exécutées da
 
 ## Installer l'environnement
 
+Dans Cozy V3, toutes les applications sont des applications HTML5 exécutées dans le navigateur et communiquant avec l'API du serveur. Pour développer une application, vous aurez donc besoin de disposer d'un serveur exposant l'API Cozy.
+
 La méthode la plus simple et la plus rapide pour disposer d'un tel serveur est d'utiliser l'image Docker que nous mettons à disposition. Vous aurez pour cela besoin d'avoir Docker.
 
 Pour récupérer l'image :
@@ -13,32 +15,38 @@ Pour récupérer l'image :
 docker pull cozy/cozy-app-dev
 ```
 
-Puis, pour lancer le serveur et lui demander de servir votre applications (que vous développez dans le dossier `~/gozy/monapp`) :
+
+
+Puis, pour lancer le serveur et lui demander de servir votre applications (que vous développez dans le dossier `~/cozy/monapp`) :
 ```sh
-docker run --rm -it -p 8080:8080 -p 5984:5984 -v ~/gozy/monapp:/data/cozy-app cozy/cozy-app-dev
+docker run --rm -it -p 8080:8080 -p 5984:5984 -p 8025:8025 -v ~/cozy/monapp:/data/cozy-app cozy/cozy-app-dev
 ```
+
+(attention : le dossier `~/cozy/monapp` doit contenir au moins les fichiers `manifest.webapp` et `index.html`).
 
 Quelques explications :
  - `--rm -it` : `rm` permet de supprimer l'instance lorsque vous la couperez, `it` d'avoir sa sortie affichée dans la fenêtre ;
- - `-p 8080:8080` : le serveur Gozy écoute sur le port 8080 de la machine virtuelle, on redirige ce port vers le port 8080 de votre machine. Pour utiliser un autre port de votre machine, utilisez par exemple `-p 9090:8080` ;
+ - `-p 8080:8080` : le serveur Cozy écoute sur le port 8080 de la machine virtuelle, on redirige ce port vers le port 8080 de votre machine. Pour utiliser un autre port de votre machine, utilisez par exemple `-p 9090:8080` ;
  - `-p 5984:5984` : expose le CouchDB du serveur sur le port 5984 de votre machine. Vous pourrez ainsi accéder à une interface de gestion de la base de données sur `http://cozy.local:5984/_utils/` ;
- - `-v ~/gozy/monapp:/data/cozy-app` : cela permet de monter le dossier local `~/gozy/monapp` sur le dossier `/data/cozy-app` du serveur. C'est dans ce dossier que Gozy s'attend à trouver le code de votre application.
+ - `-p 8025:8025` : expose sur le port local 8025 une interface permettant de visualiser les messages envoyés par le serveur ;
+ - `-v ~/cozy/monapp:/data/cozy-app` : cela permet de monter le dossier local `~/cozy/monapp` sur le dossier `/data/cozy-app` du serveur. C'est dans ce dossier que Cozy s'attend à trouver le code de votre application.
 
 Vous pouvez alors vous connecter à l'URL `http://app.cozy.local:8080/#` pour commencer à tester votre application (après vous être identifié⋅e — le mot de passe par défaut est `cozy`).
 
-En procédant ainsi, il n'y a aucune persistance de données : chaque fois que vous relancez une machine virtuelle, elle utilisera une base de données vierge. Pour stocker la base de données et le système de fichiers du serveur sur votre machine locale, vous devez monter respectivement les dossiers `/usr/local/couchdb/data` et `/data/cozy-storage` du serveur sur des dossiers locaux : `-v ~/gozy/data/db:/usr/local/couchdb/data -v ~/gozy/data/storage":/data/cozy-storage`.
+En procédant ainsi, il n'y a aucune persistance de données : chaque fois que vous relancez une machine virtuelle, elle utilisera une base de données vierge. Pour stocker la base de données et le système de fichiers du serveur sur votre machine locale, vous devez monter respectivement les dossiers `/usr/local/couchdb/data` et `/data/cozy-storage` du serveur sur des dossiers locaux : `-v ~/cozy/data/db:/usr/local/couchdb/data -v ~/cozy/data/storage":/data/cozy-storage`.
 
 Enfin, pour accéder plus facilement à la machine virtuelle, je vous conseille de lui donner un nom : `--name=cozydev`. Vous pourrez ainsi lancer un shell dans l'instance avec `docker exec -ti cozydev /bin/bash`.
 
 La commande complète est donc :
 ```sh
-docker run --rm -it -p 8080:8080 -p 5984:5984 -v ~/gozy/monapp:/data/cozy-app -v ~/gozy/data/db:/usr/local/couchdb/data -v ~/gozy/data/storage":/data/cozy-storage --name=cozydev cozy/cozy-app-dev
+docker run --rm -it -p 8080:8080 -p 5984:5984 -p 8025:8025 -v ~/cozy/monapp:/data/cozy-app -v ~/cozy/data/db:/usr/local/couchdb/data -v ~/cozy/data/storage":/data/cozy-storage --name=cozydev cozy/cozy-app-dev
 ```
 
-Une fois l'image lancée, trois URL sont accessibles :
+Une fois l'image lancée, quatre URL sont accessibles :
  - `http://app.cozy.local:8080/` affiche votre application ;
  - `http://cozy.local:8080/` est le point d’entrée de l'API Cozy avec lequel communiquera votre application ;
- - `http://cozy.local:5984/` est le point d’entrée de l’API CouchDB. Pour accédez à l’application Web d’administration de la base, connectez-vous à `http://cozy.local:5984/_utils/`
+ - `http://cozy.local:5984/` est le point d’entrée de l’API CouchDB. Pour accédez à l’application Web d’administration de la base, connectez-vous à `http://cozy.local:5984/_utils/` ;
+ - `http://cozy.local:8025/` permet de visualiser les messages envoyés par le serveur.
 
 
 ## Développer une application
@@ -102,9 +110,15 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 ```
 
-### Gérer les permissions
+### Le manifeste
 
-Pour accéder à la plupart des API disponibles, l'application doit demander la permission. Les permissions dont elle a besoin sont déclarées dans son manifeste. Une permission comporte au minimum le type d'objet sur lequel elle porte, par exemple un type de documents dans la base. Par défaut, on accorde tous les droits sur les objets de ce type, mais on peut aussi donner des droits plus fins, pour n'autoriser par exemple l'accès qu'en lecture. Il est également possible de restreindre les droits d'accès à quelques objets, désignés par leur identifiant ou un champ quelconque. Par exemple :
+Pour pouvoir être installée dans Cozy, une application doit posséder un manifeste. C’est un fichier JSON nommé `manifest.webapp`, situé à la racine de l’application et contenant son nom, sa description, les permissions dont elle a besoin… 
+
+[Exemple de manifeste](../samples/manifest.webapp).
+
+#### Gérer les permissions
+
+Pour accéder à la plupart des API disponibles, l'application doit demander la permission. Les permissions dont elle a besoin sont déclarées dans son manifeste (une application peut également demander dynamiquement une permission). Une permission comporte au minimum le type d'objet sur lequel elle porte, par exemple un type de documents dans la base ou une action à efectuer sur le serveur. Par défaut, on accorde tous les droits sur les objets de ce type, mais on peut aussi donner des droits plus fins, pour n'autoriser par exemple l'accès qu'en lecture. Il est également possible de restreindre les droits d'accès à quelques objets, désignés par leur identifiant ou un champ quelconque. Par exemple :
 ```javascript
 {
   "permissions": {
@@ -124,6 +138,30 @@ Pour accéder à la plupart des API disponibles, l'application doit demander la 
 }
 ```
 
+Une application peut obtenir un jeton associé à un sous-ensemble de ses permissions. Par exemple, elle pourra obtenir un jeton n’autorisant que l’accès en lecture à un document et passer ce jeton à une page publique que l’on partagera avec ses contacts. Ainsi, la page publique se connectera à l’API en utilisant ce jeton spécifique et n’aura qu’un accès restreint. `cozy-client-js` ne fournit [pas encore](https://github.com/cozy/cozy-client-js/issues/116) de méthodes pour gérer les permissions, il vous faudra donc appeler manuellement l’[API permissions](https://github.com/cozy/cozy-stack/blob/master/docs/permissions.md).
+
+
+#### Routage
+
+Toutes les routes utilisées par votre application doivent être déclarées dans son manifeste. Une route associe à une URL un fichier HTML dans un dossier, et précise si la route est privée (c'est à dire accessible uniquement à l'utilisateur connecté) ou publique. Par exemple :
+```javascript
+"routes": {
+  "/admin": {
+    "folder": "/",
+    "index": "admin.html",
+    "public": false
+  },
+  "/public": {
+    "folder": "/public",
+    "index": "index.html",
+    "public": true
+  },
+  "/assets": {
+    "folder": "/assets",
+    "public": true
+  }
+}
+```
 
 ### Utiliser `cozy-client-js`
 
@@ -167,6 +205,8 @@ Voici quelques exemples d’utilisation :
 });
 ```
 
+*Note :* la bibliothèque ne fournit pas encore de méthodes pour l’ensemble des API du serveur. Si vous voulez utiliser une API qui n’est pas encore disponible, vous pouvez naturellement vous rabattre sur `XMLHttpRequest` ou `fetch`.
+
 #### Référence de l’API
 
 Ce tutoriel ne vise qu’à faire un tour d’horizon des principales fonctionnalités de la bibliothèque. Pour une référence complète des fonctions avec des exemples d’usage, référez-vous à [la documentation de la bibliothèque](https://github.com/cozy/cozy-client-js/tree/master/docs).
@@ -198,7 +238,7 @@ La recherche utilise l’API [Mango](https://github.com/cloudant/mango) disponib
 
 #### Manipuler des fichiers
 
-À la différence de Cozy V2, Gozy ne stocke pas les fichiers dans la base de données, mais dans un système de fichiers virtuel, qui peut utiliser diverses technologies : le système de fichiers réel du serveur ou des systèmes distants (les méta-données des fichiers sont quand à elles toujours dans la base).
+À la différence de Cozy V2, Cozy ne stocke pas les fichiers dans la base de données, mais dans un système de fichiers virtuel, qui peut utiliser diverses technologies : le système de fichiers réel du serveur ou des systèmes distants (les méta-données des fichiers sont quand à elles toujours dans la base).
 
 La bibliothèque `cozy.client` offre de nombreuses méthodes pour manipuler les fichiers, regroupées dans l’espace de nom `cozy.client.files`. Par exemple :
  - `create()` et `updateById()` pour créer et mettre à jour un fichier ;
@@ -243,32 +283,6 @@ Pour l’utiliser, ajoutez seulement `{{.CozyBar}}` dans le code de votre page p
 
 Toutes ses fonctions sont disponibles dans l’objet global `window.cozy.bar`. Pour initialiser la bibliothèque et afficher la barre de menu, utilisez simplement `window.cozy.bar.init({appName: "Mon application"})`.
 
-
-### Routage
-
-Toutes les routes utilisées par votre application doivent être déclarées dans son manifeste. Une route associe à une URL un fichier HTML dans un dossier, et précise si la route est privée (c'est à dire accessible uniquement à l'utilisateur connecté) ou publique. Par exemple :
-```javascript
-"routes": {
-  "/admin": {
-    "folder": "/",
-    "index": "admin.html",
-    "public": false
-  },
-  "/public": {
-    "folder": "/public",
-    "index": "index.html",
-    "public": true
-  },
-  "/assets": {
-    "folder": "/assets",
-    "public": true
-  }
-}
-```
-
-### Le manifeste
-
-TODO
 
 ### Avec du style
 
