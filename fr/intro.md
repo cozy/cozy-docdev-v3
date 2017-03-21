@@ -270,6 +270,84 @@ Toutes les routes utilisées par votre application doivent être déclarées dan
 
 TODO
 
+### Avec du style
+
+Nous développons une bibliothèque, [cozy-ui](https://github.com/cozy/cozy-ui/tree/v3#use), contenant de nombreux styles. Vous pouvez l’inclure dans votre projet pour rapidement calquer l’apparence de votre application sur celle de Cozy.
+
+
+### Exécuter des tâches sur le serveur
+
+Parfois, votre application a besoin d’exécuter des traitements sur le serveur.
+
+Cozy utilise pour cela des tâches (`jobs`) qui peuvent être lancées manuellement ou en réponse à des déclencheurs (`triggers`).
+
+Il est possible de définir plusieurs types de déclencheurs, pour exécuter la tâche à une certaine heure ou au bout d’un certain interval, une seule fois ou de manière récurrente. On peut également déclencher une tâche en réponse à un évènement interne à Cozy, ou externe. Pour plus de détails, consultez la [documentation de référence des déclencheurs](https://cozy.github.io/cozy-stack/jobs.html#triggers).
+
+Pour l’heure, il n’est pas possible de créer ses propres tâches, mais uniquement celles fournies par la plateforme.
+
+Pour pouvoir lancer des tâches sur le serveur, votre application doit en avoir demandé la permission, via le type d’objets `io.cozy.jobs`. On peut restreindre les permissions à certaines tâches. Par exemple, pour envoyer des messages, on demandera la permission d’utiliser la tâche `sendmail` :
+```json
+{
+  "permissions": {
+    "mail-from-the-user": {
+      "type": "io.cozy.jobs",
+      "selector": "worker",
+      "verbs": ["POST"],
+      "values": ["sendmail"]
+    }
+  }
+}
+```
+De même, pour créer des déclencheurs, il faudra demander la permission pour le type d'objets `io.cozy.triggers`.
+
+Il n'existe pas encore de méthode dans `cozy-client-js` pour créer et déclencher des tâches, on fera donc [directement appel à l'API](https://github.com/cozy/cozy-stack/blob/master/docs/jobs.md#post-jobsqueueworker-type).
+
+Les tâches actuellement disponibles sont :
+ - `sendmail` pour envoyer un message ;
+
+On se rapportera à la [documentation complète des tâches](https://cozy.github.io/cozy-stack/workers.html) pour connaître les arguments de chaque tâche.
+
+*Exemple* : pour envoyer un message :
+```javascript
+  fetchOptions = {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${app.cozyToken}`,
+      'Content-Type': 'application/json'
+    },
+    credentials: 'include',
+    body: JSON.stringify({
+      data: {
+        arguments: {
+          mode: "from",
+          to: "root",
+          subject: "test",
+          parts: [
+            {
+              type: "text/plain",
+              body: "Hey !"
+            }
+          ]
+        },
+        options: {}
+      }
+    })
+  };
+  fetch(`//${app.cozyDomain}/jobs/queue/sendmail`, fetchOptions)
+  .then(function (response) {
+    if (response.ok) {
+      response.json().then((res) => {
+        console.log(res);
+      });
+    } else {
+      throw new Error('Network response was not ok.');
+    }
+  })
+  .catch(function (error) {
+    console.log('There has been a problem with your fetch operation: ' + error.message);
+  });
+
+```
 
 ## Administrer l'instance de développement.
 
