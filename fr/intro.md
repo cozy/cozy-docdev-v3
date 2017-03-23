@@ -2,24 +2,42 @@
 
 # Développer une application pour Cozy V3
 
-Dans Cozy V3, toutes les applications sont des applications HTML5 exécutées dans le navigateur et communiquant avec l'API du serveur. Pour développer une application, vous aurez donc besoin de disposer d'un serveur exposant l'API Cozy.
+## Présentation de la plateforme
+
+Cozy est un serveur personnel hébergeant des applications Web permettant de manipuler des données personnelles. Les applications pour Cozy sont entièrement écrites en technologies Web (HTML, CSS et JavaScript). Elles s’exécutent dans le navigateur de l’internaute et communiquent avec le serveur via une API. Celle-ci permet d’interagir avec la base de données du serveur et d’effectuer des actions telles que l’envoi de message. Sur le serveur tournent également des applications spécifiques, les connecteurs, capables d’importer des données depuis des sources externes.
+
+Ce guide va vous expliquer comment créer votre première application pour Cozy, en installant un environnement de développant et les quelques fichiers nécessaires à votre application.
 
 ## Installer l'environnement
 
+### Pré-requis
+
 Dans Cozy V3, toutes les applications sont des applications HTML5 exécutées dans le navigateur et communiquant avec l'API du serveur. Pour développer une application, vous aurez donc besoin de disposer d'un serveur exposant l'API Cozy.
 
-La méthode la plus simple et la plus rapide pour disposer d'un tel serveur est d'utiliser l'image Docker que nous mettons à disposition. Vous aurez pour cela besoin d'avoir Docker.
+La méthode la plus simple et la plus rapide pour disposer d'un tel serveur est d'utiliser l'image Docker que nous mettons à disposition. Vous aurez pour cela besoin d'avoir [installé Docker](https://docs.docker.com/engine/installation/).
 
 Pour récupérer l'image :
 ```sh
 docker pull cozy/cozy-app-dev
 ```
 
+Ce serveur de développement utilise les noms de domaine `cozy.local` et `app.cozy.local`. Vous devez donc les faire pointer vers votre machine, par exemple en plaçant cette ligne dans le fichier `/etc/hosts` :
+```
+127.0.0.1     libertad.clochix.net localhost cozy-deb-8.cozycloud.cc cozy.local app.cozy.local
+```
 
-
-Puis, pour lancer le serveur et lui demander de servir votre applications (que vous développez dans le dossier `~/cozy/monapp`) :
+La branche `sample` du dépôt de cette documentation contient un squelette minimaliste avec les fichiers nécessaires pour créer une application. Vous pouvez les récupérer en faisant :
 ```sh
-docker run --rm -it -p 8080:8080 -p 5984:5984 -p 8025:8025 -v ~/cozy/monapp:/data/cozy-app cozy/cozy-app-dev
+git clone -b sample https://github.com/cozy/cozy-docdev-v3.git myapp
+cd myapp
+```
+
+### Démarrer le serveur de développement
+
+
+Pour lancer le serveur et lui demander de servir votre applications, placez-vous dans le dossier contenant votre application et tapez :
+```sh
+docker run --rm -it -p 8080:8080 -p 5984:5984 -p 8025:8025 -v $(pwd):/data/cozy-app cozy/cozy-app-dev
 ```
 
 (attention : le dossier `~/cozy/monapp` doit contenir au moins les fichiers `manifest.webapp` et `index.html`).
@@ -29,7 +47,7 @@ Quelques explications :
  - `-p 8080:8080` : le serveur Cozy écoute sur le port 8080 de la machine virtuelle, on redirige ce port vers le port 8080 de votre machine. Pour utiliser un autre port de votre machine, utilisez par exemple `-p 9090:8080` ;
  - `-p 5984:5984` : expose le CouchDB du serveur sur le port 5984 de votre machine. Vous pourrez ainsi accéder à une interface de gestion de la base de données sur `http://cozy.local:5984/_utils/` ;
  - `-p 8025:8025` : expose sur le port local 8025 une interface permettant de visualiser les messages envoyés par le serveur ;
- - `-v ~/cozy/monapp:/data/cozy-app` : cela permet de monter le dossier local `~/cozy/monapp` sur le dossier `/data/cozy-app` du serveur. C'est dans ce dossier que Cozy s'attend à trouver le code de votre application.
+ - `-v $(pwd):/data/cozy-app` : cela permet de monter le dossier dans lequel vous êtes sur le dossier `/data/cozy-app` du serveur, où Cozy s'attend à trouver le code de votre application.
 
 Vous pouvez alors vous connecter à l'URL `http://app.cozy.local:8080/#` pour commencer à tester votre application (après vous être identifié⋅e — le mot de passe par défaut est `cozy`).
 
