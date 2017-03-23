@@ -191,7 +191,7 @@ Cette bibliothèque enrobe les API du serveur qui permettent de gérer l’authe
 
 On peut utiliser la bibliothèque de deux manières : soit en créant un nouvel objet et appelant ses méthodes, soit en appelant directement les fonctions de l’objet global. Dans ce dernier cas, un appel initial à `cozy.client.init()` est requis. Lors de l’initialisation, deux options sont requises : l’URL du point d’entrée de l’API, et le jeton d’authentification.
 
-Par ailleurs, on peut utiliser deux paradigmes de programmation avec la bibliothèque : par défaut, chaque méthode retourne une `Promise`, mais vous pouvez aussi utiliser des fonctions de rappel. Il suffit pour cela de passer l’option `disablePromises: false` à la bibliothèque.
+Par ailleurs, on peut utiliser deux paradigmes de programmation avec la bibliothèque : par défaut, chaque méthode retourne une `Promise`, mais vous pouvez aussi utiliser des fonctions de rappel. Il suffit pour cela de passer l’option `disablePromises: true` à la bibliothèque.
 
 Voici quelques exemples d’utilisation :
 
@@ -231,7 +231,7 @@ Ce tutoriel ne vise qu’à faire un tour d’horizon des principales fonctionna
 
 #### Manipuler des documents
 
-Dans Cozy, tous les documents ont un type. Pour éviter que plusieurs applications ne créent le même type de documents avec des formats différents, nous avons décider de nommer les types en suivant [la spécification Java](https://docs.oracle.com/javase/specs/jls/se8/html/jls-6.html#d5e8195) : tous les types de documents sont donc préfixés par un nom de domaine écrit à l’envers ou, si vous ne possédez pas de nom de domaine, par votre adresse de courriel. Les types définis par Cozy sont préfixés par `io.cozy.` ou `io.cozy.labs`. Si votre adresse est `toto@nuage.douye`, préfixez vos types par `douye.nuage.toto`. Vous n’avez évidemment pas le droit de modifier des types de documents ne vous « appartenant » pas.
+Dans Cozy, tous les documents ont un type. Pour éviter que plusieurs applications ne créent le même type de documents avec des formats différents, nous avons décidé de nommer les types en suivant [la spécification Java](https://docs.oracle.com/javase/specs/jls/se8/html/jls-6.html#d5e8195) : tous les types de documents sont donc préfixés par un nom de domaine écrit à l’envers ou, si vous ne possédez pas de nom de domaine, par votre adresse de courriel. Les types définis par Cozy sont préfixés par `io.cozy.` ou `io.cozy.labs`. Si votre adresse est `toto@nuage.douye`, préfixez vos types par `douye.nuage.toto`. Vous n’avez évidemment pas le droit de modifier des types de documents ne vous « appartenant » pas.
 
 Rappel : pour pouvoir accéder à des documents, vous devez explicitement en avoir demandé la permission dans le manifeste de votre application.
 
@@ -260,7 +260,7 @@ La recherche utilise l’API [Mango](https://github.com/cloudant/mango) disponib
 
 La bibliothèque `cozy.client` offre de nombreuses méthodes pour manipuler les fichiers, regroupées dans l’espace de nom `cozy.client.files`. Par exemple :
  - `create()` et `updateById()` pour créer et mettre à jour un fichier ;
- - `createDirectory()` pour supprimer un dossier ;
+ - `createDirectory()` pour créer un dossier ;
  - `updateAttributesById()` et `updateAttributesByPath()` pour modifier les meta-données ;
  - pour supprimer un fichier ou un dossier, on peut soit le déplacer dans une poubelle (`trashById()`) d’où il sera possible de le récupérer via `restoreById()`, soit l’éradiquer définitivement avec `destroyById (`trashById()`). On peut également afficher le contenu de la poubelle (`listTrash()`) et supprimer l’ensemble de son contenu (`clearTrash()`). 
  - `downloadById(id)` et `downloadByPath(path)` permettent de télécharger un fichier ;
