@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="{{.Locale}}">
+  <head>
+    <meta charset="utf-8">
+    <title>My Awesome App for Cozy</title>
+    {{.CozyClientJS}}
+    {{.IconPath}}
+    <script defer src="index.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+  <body>
+    <div role="application" data-cozy-token="{{.Token}}" data-cozy-domain="{{.Domain}}" data-app-name="{{.AppName}}" />
+    PUBLIC PAGE
+  </body>
+</html>
