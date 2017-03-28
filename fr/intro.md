@@ -21,6 +21,8 @@ Pour récupérer l'image :
 docker pull cozy/cozy-app-dev
 ```
 
+(La même commande vous permettra de récupérer les mises à jour de l’image. Nous publions régulièrement de nouvelles versions, pensez à mettre à jour votre serveur).
+
 Ce serveur de développement utilise les noms de domaine `cozy.local` et `app.cozy.local`. Vous devez donc les faire pointer vers votre machine, par exemple en plaçant cette ligne dans le fichier `/etc/hosts` :
 ```
 127.0.0.1     libertad.clochix.net localhost cozy-deb-8.cozycloud.cc cozy.local app.cozy.local
@@ -244,12 +246,12 @@ Toutes les méthodes de manipulation de documents sont regroupées dans l’espa
 Pour accéder à des documents en fonction de critères aléatoires, il faut d’abord créer un index sur certains champs des documents puis effectuer une requête sur cet index. On utilise `defineIndex(doctype, fields)` et `query(indexReference, query)`. Par exemple, pour chercher un contact en fonction de son adresse de messagerie, on créera un index sur ce champ et interrogera l’index :
 ```javascript
 cozy.client.data.defineIndex("io.cozy.contacts", ["email"])
-  .then( (index) => {
-    cozy.data.query(index, {"selector": {email: "contact@cozycloud.cc"}})
-      then( (result) => {
-        console.log(result[0].name);
-      });
-  })
+.then((index) => {
+  return cozy.data.query(index, {"selector": {email: "contact@cozycloud.cc"}})
+})
+.then( (result) => {
+  console.log(result[0].name);
+});
 ```
 La recherche utilise l’API [Mango](https://github.com/cloudant/mango) disponible dans CouchDB 2.
 
