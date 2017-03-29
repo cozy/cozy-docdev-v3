@@ -1,0 +1,33 @@
+{
+  "name": "Ma super application",
+  "permissions": {
+    "apps": {
+      "type": "io.cozy.apps"
+    },
+    "permissions": {
+      "type": "io.cozy.permissions"
+    },
+    "settings": {
+      "type": "io.cozy.settings"
+    },
+    "sample": {
+      "type": "io.cozy.dev.sample",
+      "verbs": ["GET", "POST", "PUT", "PATCH", "DELETE"]
+    },
+    "jobs": {
+      "type": "io.cozy.jobs"
+    }
+  },
+  "routes": {
+    "/": {
+      "folder": "/",
+      "index": "index.html",
+      "public": false
+    },
+    "/public": {
+      "folder": "/public",
+      "index": "index.html",
+      "public": true
+    }
+  }
+}
