@@ -419,6 +419,64 @@ On se rapportera à la [documentation complète des tâches](https://cozy.github
 
 ```
 
+#### Déclencher des tâches périodiques
+
+On peut lancer une tâche à la demande, comme dans l’exemple précédent, ou en réponse à un déclencheur (`trigger`). Il existe six types de déclencheurs :
+ - [`@cron`](https://cozy.github.io/cozy-stack/jobs.html#cron-syntax) pour exécuter la tâche périodiquement à des dates précises. Par exemple, pour exécuter une tâche tous les jours à 01:05:30, on utilisera `30 5 1 * * *`;
+ - [`@interval`](https://cozy.github.io/cozy-stack/jobs.html#interval-syntax) pour exécuter la tâche périodiquement à un certain intervalle de temps, par exemple tous les trois quart d’heure : `45m` ;
+ - [`@at`](https://cozy.github.io/cozy-stack/jobs.html#at-syntax) pour lancer le traitement une seule fois à une date définie, spécifiée au format ISO-8601, par exemple `2016-12-12T15:36:25.507Z` ;
+ - [`@in`](https://cozy.github.io/cozy-stack/jobs.html#in-syntax) pour lancer le traitement une seule fois après un certain intervalle, par exemple dans une heure : `1h` ;
+ - [`@event`](https://cozy.github.io/cozy-stack/jobs.html#event-syntax) pour déclencher une action en réponse à un évènement sur le serveur, par exemple une création de fichier : `io.cozy.files:CREATED` ou une suppression d’image : `io.cozy.files:DELETED:image/jpg:mime` ;
+ - [`@webhook`](https://cozy.github.io/cozy-stack/jobs.html#webook-syntax) pour déclencher un traitement via une URL. La création du déclencheur retourne l’URL permettant de l’appeler ;
+
+Pour pouvoir créer des déclencheurs, votre application doit en avoir demandé la permission, via le type d’objets `io.cozy.triggers`. On peut restreindre les permissions à certaines tâches. Par exemple, pour envoyer des messages périodique, on utilisera :
+```json
+{
+  "permissions": {
+    "mail-from-the-user": {
+      "description": "Required to send regularly mails from the user to his/her friends",
+        "type": "io.cozy.triggers",
+        "verbs": ["GET", "POST"],
+        "selector": "worker",
+        "values": ["sendmail"]
+    }
+  }
+}
+```
+
+On peut alors créer un déclencheur. Pour envoyer déclencher l’envoi d’un message dans cinq minutes, on utilisera :
+```javascript
+  fetchOptions = {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${app.cozyToken}`,
+      'Content-Type': 'application/json'
+    },
+    credentials: 'include',
+    body: JSON.stringify({
+      data: {
+        attributes: {
+          type: "@in",
+          arguments: "5m",
+          worker: "sendmail",
+          worker_arguments: { … }
+        }
+      }
+    })
+  };
+  fetch(`//${app.cozyDomain}/jobs/triggers`, fetchOptions)
+  .catch(function (error) {
+    throw error;
+  })
+  .then(function (response) {
+    console.log("Trigger created");
+  });
+
+```
+
+
+[Sommaire](#développer-une-application-pour-cozy-v3)
+
 ## Administrer l'instance de développement.
 
 Vous pouvez ouvrir une console dans l'instance de développement au moyen de `docker exec -ti cozydev /bin/bash`. Cela vous permet d'utiliser la commande `cozy-stack` pour administrer l'instance.
