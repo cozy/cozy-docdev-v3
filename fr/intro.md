@@ -51,15 +51,7 @@ docker pull cozy/cozy-app-dev
 
 (La même commande vous permettra de récupérer les mises à jour de l’image. Nous publions régulièrement de nouvelles versions, pensez à mettre à jour votre serveur).
 
-Ce serveur de développement utilise les noms de domaine `cozy.local` et `app.cozy.local`. Vous devez donc les faire pointer vers votre machine, par exemple en plaçant cette ligne dans le fichier `/etc/hosts` :
-```
-127.0.0.1  localhost cozy.local app.cozy.local
-```
-
-⚠️ Si vous voulez utiliser plusieurs applications, vous devrez déclarer chacun de leur sous-domaine. Par exemple, pour utiliser `Files` et `Photos`, utilisez :
-```
-127.0.0.1  localhost cozy.local files.cozy.local photos.cozy.local
-```
+Ce serveur de développement utilise les noms de domaine `*.cozy.tools`. Nous avons paramétré ce domaine pour qu’il pointe toujours vers `127.0.0.1`, l’adresse de votre machine locale.
 
 La branche `sample` du dépôt de cette documentation contient un squelette minimaliste avec les fichiers nécessaires pour créer une application. Vous pouvez les récupérer en faisant :
 ```sh
@@ -80,11 +72,11 @@ docker run --rm -it -p 8080:8080 -p 5984:5984 -p 8025:8025 -v $(pwd):/data/cozy-
 Quelques explications :
  - `--rm -it` : `rm` permet de supprimer l'instance lorsque vous la couperez, `it` d'avoir sa sortie affichée dans la fenêtre ;
  - `-p 8080:8080` : le serveur Cozy écoute sur le port 8080 de la machine virtuelle, on redirige ce port vers le port 8080 de votre machine. Pour utiliser un autre port de votre machine, utilisez par exemple `-p 9090:8080` ;
- - `-p 5984:5984` : expose le CouchDB du serveur sur le port 5984 de votre machine. Vous pourrez ainsi accéder à une interface de gestion de la base de données sur `http://cozy.local:5984/_utils/` ;
+ - `-p 5984:5984` : expose le CouchDB du serveur sur le port 5984 de votre machine. Vous pourrez ainsi accéder à une interface de gestion de la base de données sur `http://cozy.tools:5984/_utils/` ;
  - `-p 8025:8025` : expose sur le port local 8025 une interface permettant de visualiser les messages envoyés par le serveur ;
  - `-v $(pwd):/data/cozy-app` : cela permet de monter le dossier dans lequel vous êtes sur le dossier `/data/cozy-app` du serveur, où Cozy s'attend à trouver le code de votre application.
 
-Vous pouvez alors vous connecter à l'URL `http://app.cozy.local:8080/#` pour commencer à tester votre application (après vous être identifié⋅e — le mot de passe par défaut est `cozy`).
+Vous pouvez alors vous connecter à l'URL `http://app.cozy.tools:8080/#` pour commencer à tester votre application (après vous être identifié⋅e — le mot de passe par défaut est `cozy`).
 
 En procédant ainsi, il n'y a aucune persistance de données : chaque fois que vous relancez une machine virtuelle, elle utilisera une base de données vierge. Pour stocker la base de données et le système de fichiers du serveur sur votre machine locale, vous devez monter respectivement les dossiers `/usr/local/couchdb/data` et `/data/cozy-storage` du serveur sur des dossiers locaux : `-v ~/cozy/data/db:/usr/local/couchdb/data -v ~/cozy/data/storage":/data/cozy-storage`.
 
@@ -96,10 +88,10 @@ docker run --rm -it -p 8080:8080 -p 5984:5984 -p 8025:8025 -v $(pwd):/data/cozy-
 ```
 
 Une fois l'image lancée, quatre URL sont accessibles :
- - `http://app.cozy.local:8080/` affiche votre application ;
- - `http://cozy.local:8080/` est le point d’entrée de l'API Cozy avec lequel communiquera votre application ;
- - `http://cozy.local:5984/` est le point d’entrée de l’API CouchDB. Pour accédez à l’application Web d’administration de la base, connectez-vous à `http://cozy.local:5984/_utils/` ;
- - `http://cozy.local:8025/` permet de visualiser les messages envoyés par le serveur.
+ - `http://app.cozy.tools:8080/` affiche votre application ;
+ - `http://cozy.tools:8080/` est le point d’entrée de l'API Cozy avec lequel communiquera votre application ;
+ - `http://cozy.tools:5984/` est le point d’entrée de l’API CouchDB. Pour accédez à l’application Web d’administration de la base, connectez-vous à `http://cozy.tools:5984/_utils/` ;
+ - `http://cozy.tools:8025/` permet de visualiser les messages envoyés par le serveur.
 
 #### Tester plusieurs applications
 
@@ -108,7 +100,7 @@ Vous pouvez également installer plusieurs applications. Il suffit pour cela de 
 docker run --rm -it -p 8080:8080 -p 5984:5984 -p 8025:8025 -v "~/cozy/files":/data/cozy-app/files" -v "~/cozy/photos:/data-cozy-app/photos" --name=cozydev cozy/cozy-app-dev
 ```
 
-Si vous avez déclaré les domaines dans le fichier `/etc/hosts`, les applications seront alors disponibles sur `http://files.cozy.local:8080/` et `http://photos.cozy.local:8080` .
+Les applications seront alors disponibles sur `http://files.cozy.tools:8080/` et `http://photos.cozy.tools:8080`.
 
 [Sommaire](#développer-une-application-pour-cozy-v3)
 
@@ -377,7 +369,6 @@ Pour pouvoir lancer des tâches sur le serveur, votre application doit en avoir 
   }
 }
 ```
-De même, pour créer des déclencheurs, il faudra demander la permission pour le type d'objets `io.cozy.triggers`.
 
 Il n'existe pas encore de méthode dans `cozy-client-js` pour créer et déclencher des tâches, on fera donc [directement appel à l'API](https://github.com/cozy/cozy-stack/blob/master/docs/jobs.md#post-jobsqueueworker-type).
 
