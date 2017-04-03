@@ -2,6 +2,34 @@
 
 # Développer une application pour Cozy V3
 
+
+## Table des matières
+
+$$("[id]").forEach( e => {if (e.tagName.substr(0, 1) === 'H') console.log(`* [${e.innerText}](#${e.id})`)})
+
+* [Présentation de la plateforme](#présentation-de-la-plateforme)
+* [Installer l’environnement](#installer-lenvironnement)
+  * [Pré-requis](#pré-requis)
+  * [Démarrer le serveur de développement](#démarrer-le-serveur-de-développement)
+    * [Tester plusieurs applications](#tester-plusieurs-applications)
+* [Développer une application](#développer-une-application)
+  * [Accès à l’API](#accès-à-lapi)
+  * [Le manifeste](#le-manifeste)
+    * [Gérer les permissions](#gérer-les-permissions)
+    * [Routage](#routage)
+  * [Utiliser cozy-client-js](#utiliser-cozy-client-js)
+    * [Référence de l’API](#référence-de-lapi)
+    * [Manipuler des documents](#manipuler-des-documents)
+    * [Manipuler des fichiers](#manipuler-des-fichiers)
+    * [Gérer le serveur](#gérer-le-serveur)
+    * [Travailler sans réseau](#travailler-sans-réseau)
+  * [La cozy-bar](#la-cozy-bar)
+  * [Avec du style](#avec-du-style)
+  * [Exécuter des tâches sur le serveur](#exécuter-des-tâches-sur-le-serveur)
+    * [Déclencher des tâches périodiques](#déclencher-des-tâches-périodiques)
+* [Administrer l’instance de développement.](#administrer-linstance-de-développement)
+
+
 ## Présentation de la plateforme
 
 Cozy est un serveur personnel hébergeant des applications Web permettant de manipuler des données personnelles. Les applications pour Cozy sont entièrement écrites en technologies Web (HTML, CSS et JavaScript). Elles s’exécutent dans le navigateur de l’internaute et communiquent avec le serveur via une API. Celle-ci permet d’interagir avec la base de données du serveur et d’effectuer des actions telles que l’envoi de message. Sur le serveur tournent également des applications spécifiques, les connecteurs, capables d’importer des données depuis des sources externes.
@@ -82,6 +110,8 @@ docker run --rm -it -p 8080:8080 -p 5984:5984 -p 8025:8025 -v "~/cozy/files":/da
 
 Si vous avez déclaré les domaines dans le fichier `/etc/hosts`, les applications seront alors disponibles sur `http://files.cozy.local:8080/` et `http://photos.cozy.local:8080` .
 
+[Sommaire](#développer-une-application-pour-cozy-v3)
+
 ## Développer une application
 
 Une application pour Cozy se compose au minimum de deux fichiers :
@@ -143,6 +173,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 ```
 
+[Sommaire](#développer-une-application-pour-cozy-v3)
+
 ### Le manifeste
 
 Pour pouvoir être installée dans Cozy, une application doit posséder un manifeste. C’est un fichier JSON nommé `manifest.webapp`, situé à la racine de l’application et contenant son nom, sa description, les permissions dont elle a besoin… 
@@ -195,6 +227,8 @@ Toutes les routes utilisées par votre application doivent être déclarées dan
   }
 }
 ```
+
+[Sommaire](#développer-une-application-pour-cozy-v3)
 
 ### Utiliser `cozy-client-js`
 
@@ -299,10 +333,8 @@ La bibliothèque fournit également des méthodes pour obtenir des informations 
 TODO
 
 
-#### Déclencher des tâches périodiques
 
-TODO
-
+[Sommaire](#développer-une-application-pour-cozy-v3)
 
 ### La `cozy-bar`
 
