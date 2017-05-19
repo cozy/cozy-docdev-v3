@@ -2,6 +2,34 @@
 
 # Développer une application pour Cozy V3
 
+
+## Table des matières
+
+$$("[id]").forEach( e => {if (e.tagName.substr(0, 1) === 'H') console.log(`* [${e.innerText}](#${e.id})`)})
+
+* [Présentation de la plateforme](#présentation-de-la-plateforme)
+* [Installer l’environnement](#installer-lenvironnement)
+  * [Pré-requis](#pré-requis)
+  * [Démarrer le serveur de développement](#démarrer-le-serveur-de-développement)
+    * [Tester plusieurs applications](#tester-plusieurs-applications)
+* [Développer une application](#développer-une-application)
+  * [Accès à l’API](#accès-à-lapi)
+  * [Le manifeste](#le-manifeste)
+    * [Gérer les permissions](#gérer-les-permissions)
+    * [Routage](#routage)
+  * [Utiliser cozy-client-js](#utiliser-cozy-client-js)
+    * [Référence de l’API](#référence-de-lapi)
+    * [Manipuler des documents](#manipuler-des-documents)
+    * [Manipuler des fichiers](#manipuler-des-fichiers)
+    * [Gérer le serveur](#gérer-le-serveur)
+    * [Travailler sans réseau](#travailler-sans-réseau)
+  * [La cozy-bar](#la-cozy-bar)
+  * [Avec du style](#avec-du-style)
+  * [Exécuter des tâches sur le serveur](#exécuter-des-tâches-sur-le-serveur)
+    * [Déclencher des tâches périodiques](#déclencher-des-tâches-périodiques)
+* [Administrer l’instance de développement.](#administrer-linstance-de-développement)
+
+
 ## Présentation de la plateforme
 
 Cozy est un serveur personnel hébergeant des applications Web permettant de manipuler des données personnelles. Les applications pour Cozy sont entièrement écrites en technologies Web (HTML, CSS et JavaScript). Elles s’exécutent dans le navigateur de l’internaute et communiquent avec le serveur via une API. Celle-ci permet d’interagir avec la base de données du serveur et d’effectuer des actions telles que l’envoi de message. Sur le serveur tournent également des applications spécifiques, les connecteurs, capables d’importer des données depuis des sources externes.
@@ -23,15 +51,7 @@ docker pull cozy/cozy-app-dev
 
 (La même commande vous permettra de récupérer les mises à jour de l’image. Nous publions régulièrement de nouvelles versions, pensez à mettre à jour votre serveur).
 
-Ce serveur de développement utilise les noms de domaine `cozy.local` et `app.cozy.local`. Vous devez donc les faire pointer vers votre machine, par exemple en plaçant cette ligne dans le fichier `/etc/hosts` :
-```
-127.0.0.1  localhost cozy.local app.cozy.local
-```
-
-⚠️ Si vous voulez utiliser plusieurs applications, vous devrez déclarer chacun de leur sous-domaine. Par exemple, pour utiliser `Files` et `Photos`, utilisez :
-```
-127.0.0.1  localhost cozy.local files.cozy.local photos.cozy.local
-```
+Ce serveur de développement utilise les noms de domaine `*.cozy.tools`. Nous avons paramétré ce domaine pour qu’il pointe toujours vers `127.0.0.1`, l’adresse de votre machine locale.
 
 La branche `sample` du dépôt de cette documentation contient un squelette minimaliste avec les fichiers nécessaires pour créer une application. Vous pouvez les récupérer en faisant :
 ```sh
@@ -52,26 +72,26 @@ docker run --rm -it -p 8080:8080 -p 5984:5984 -p 8025:8025 -v $(pwd):/data/cozy-
 Quelques explications :
  - `--rm -it` : `rm` permet de supprimer l'instance lorsque vous la couperez, `it` d'avoir sa sortie affichée dans la fenêtre ;
  - `-p 8080:8080` : le serveur Cozy écoute sur le port 8080 de la machine virtuelle, on redirige ce port vers le port 8080 de votre machine. Pour utiliser un autre port de votre machine, utilisez par exemple `-p 9090:8080` ;
- - `-p 5984:5984` : expose le CouchDB du serveur sur le port 5984 de votre machine. Vous pourrez ainsi accéder à une interface de gestion de la base de données sur `http://cozy.local:5984/_utils/` ;
+ - `-p 5984:5984` : expose le CouchDB du serveur sur le port 5984 de votre machine. Vous pourrez ainsi accéder à une interface de gestion de la base de données sur `http://cozy.tools:5984/_utils/` ;
  - `-p 8025:8025` : expose sur le port local 8025 une interface permettant de visualiser les messages envoyés par le serveur ;
  - `-v $(pwd):/data/cozy-app` : cela permet de monter le dossier dans lequel vous êtes sur le dossier `/data/cozy-app` du serveur, où Cozy s'attend à trouver le code de votre application.
 
-Vous pouvez alors vous connecter à l'URL `http://app.cozy.local:8080/#` pour commencer à tester votre application (après vous être identifié⋅e — le mot de passe par défaut est `cozy`).
+Vous pouvez alors vous connecter à l'URL `http://app.cozy.tools:8080/#` pour commencer à tester votre application (après vous être identifié⋅e — le mot de passe par défaut est `cozy`).
 
-En procédant ainsi, il n'y a aucune persistance de données : chaque fois que vous relancez une machine virtuelle, elle utilisera une base de données vierge. Pour stocker la base de données et le système de fichiers du serveur sur votre machine locale, vous devez monter respectivement les dossiers `/usr/local/couchdb/data` et `/data/cozy-storage` du serveur sur des dossiers locaux : `-v ~/cozy/data/db:/usr/local/couchdb/data -v ~/cozy/data/storage":/data/cozy-storage`.
+En procédant ainsi, il n'y a aucune persistance de données : chaque fois que vous relancez une machine virtuelle, elle utilisera une base de données vierge. Pour stocker la base de données et le système de fichiers du serveur sur votre machine locale, vous devez monter respectivement les dossiers `/usr/local/couchdb/data` et `/data/cozy-storage` du serveur sur des dossiers locaux : `-v ~/cozy/data/db:/usr/local/couchdb/data -v ~/cozy/data/storage:/data/cozy-storage`.
 
 Enfin, pour accéder plus facilement à la machine virtuelle, je vous conseille de lui donner un nom : `--name=cozydev`. Vous pourrez ainsi lancer un shell dans l'instance avec `docker exec -ti cozydev /bin/bash`.
 
 La commande complète est donc :
 ```sh
-docker run --rm -it -p 8080:8080 -p 5984:5984 -p 8025:8025 -v $(pwd):/data/cozy-app -v ~/cozy/data/db:/usr/local/couchdb/data -v ~/cozy/data/storage":/data/cozy-storage --name=cozydev cozy/cozy-app-dev
+docker run --rm -it -p 8080:8080 -p 5984:5984 -p 8025:8025 -v $(pwd):/data/cozy-app -v ~/cozy/data/db:/usr/local/couchdb/data -v ~/cozy/data/storage:/data/cozy-storage --name=cozydev cozy/cozy-app-dev
 ```
 
 Une fois l'image lancée, quatre URL sont accessibles :
- - `http://app.cozy.local:8080/` affiche votre application ;
- - `http://cozy.local:8080/` est le point d’entrée de l'API Cozy avec lequel communiquera votre application ;
- - `http://cozy.local:5984/` est le point d’entrée de l’API CouchDB. Pour accédez à l’application Web d’administration de la base, connectez-vous à `http://cozy.local:5984/_utils/` ;
- - `http://cozy.local:8025/` permet de visualiser les messages envoyés par le serveur.
+ - `http://app.cozy.tools:8080/` affiche votre application ;
+ - `http://cozy.tools:8080/` est le point d’entrée de l'API Cozy avec lequel communiquera votre application ;
+ - `http://cozy.tools:5984/` est le point d’entrée de l’API CouchDB. Pour accédez à l’application Web d’administration de la base, connectez-vous à `http://cozy.tools:5984/_utils/` ;
+ - `http://cozy.tools:8025/` permet de visualiser les messages envoyés par le serveur.
 
 #### Tester plusieurs applications
 
@@ -80,7 +100,9 @@ Vous pouvez également installer plusieurs applications. Il suffit pour cela de 
 docker run --rm -it -p 8080:8080 -p 5984:5984 -p 8025:8025 -v "~/cozy/files":/data/cozy-app/files" -v "~/cozy/photos:/data-cozy-app/photos" --name=cozydev cozy/cozy-app-dev
 ```
 
-Si vous avez déclaré les domaines dans le fichier `/etc/hosts`, les applications seront alors disponibles sur `http://files.cozy.local:8080/` et `http://photos.cozy.local:8080` .
+Les applications seront alors disponibles sur `http://files.cozy.tools:8080/` et `http://photos.cozy.tools:8080`.
+
+[Sommaire](#développer-une-application-pour-cozy-v3)
 
 ## Développer une application
 
@@ -143,6 +165,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 ```
 
+[Sommaire](#développer-une-application-pour-cozy-v3)
+
 ### Le manifeste
 
 Pour pouvoir être installée dans Cozy, une application doit posséder un manifeste. C’est un fichier JSON nommé `manifest.webapp`, situé à la racine de l’application et contenant son nom, sa description, les permissions dont elle a besoin… 
@@ -195,6 +219,8 @@ Toutes les routes utilisées par votre application doivent être déclarées dan
   }
 }
 ```
+
+[Sommaire](#développer-une-application-pour-cozy-v3)
 
 ### Utiliser `cozy-client-js`
 
@@ -278,11 +304,24 @@ La bibliothèque `cozy.client` offre de nombreuses méthodes pour manipuler les 
  - `createDirectory()` pour créer un dossier ;
  - `updateAttributesById()` et `updateAttributesByPath()` pour modifier les meta-données ;
  - pour supprimer un fichier ou un dossier, on peut soit le déplacer dans une poubelle (`trashById()`) d’où il sera possible de le récupérer via `restoreById()`, soit l’éradiquer définitivement avec `destroyById (`trashById()`). On peut également afficher le contenu de la poubelle (`listTrash()`) et supprimer l’ensemble de son contenu (`clearTrash()`). 
+ - `statById(id)` et `statByPath(path)` donnent accès aux informations d’un fichier et, dans le cas d’un dossier, à l’ensemble des dossiers et fichiers qu’il contient ;
  - `downloadById(id)` et `downloadByPath(path)` permettent de télécharger un fichier ;
  - `getDownloadLinkById(id)` et `getDownloadLinkByPath(path)` retournent une URL de téléchargement valable une heure ;
  - `getArchiveLink(paths, name)` retourne une URL temporaire permettant de télécharger une archive Zip de tous les fichiers d’un dossier ;
- - on peut lier un fichier à un document avec `addReferencedFiles(doc, fileIds)` et lister tous les fichiers liés à un document avec `listReferencedFiles(doc)`.
+ - on peut lier un fichier à un document avec `cozy.client.data.addReferencedFiles(doc, fileIds)` et lister tous les fichiers liés à un document avec `cozy.client.data.listReferencedFiles(doc)`.
 
+Certains dossiers ont un identifiant pré-définis :
+ - `io.cozy.files.root-dir` désigne la racine du système de fichiers ;
+ - `io.cozy.files.trash-dir` désigne la corbeille.
+
+Les dossiers retournés par `statById()` et `statByPath()` possèdent une méthode `relations()` donnant accès à leur contenu. Par exemple, pour afficher les fichiers situés à la racine :
+```javascript
+cozy.client.files.statByPath("/")
+.then((dir) => {
+  console.log(dir);
+  console.log(dir.relations("contents"));
+})
+```
 
 #### Gérer le serveur
 
@@ -299,10 +338,8 @@ La bibliothèque fournit également des méthodes pour obtenir des informations 
 TODO
 
 
-#### Déclencher des tâches périodiques
 
-TODO
-
+[Sommaire](#développer-une-application-pour-cozy-v3)
 
 ### La `cozy-bar`
 
@@ -345,12 +382,12 @@ Pour pouvoir lancer des tâches sur le serveur, votre application doit en avoir 
   }
 }
 ```
-De même, pour créer des déclencheurs, il faudra demander la permission pour le type d'objets `io.cozy.triggers`.
 
 Il n'existe pas encore de méthode dans `cozy-client-js` pour créer et déclencher des tâches, on fera donc [directement appel à l'API](https://github.com/cozy/cozy-stack/blob/master/docs/jobs.md#post-jobsqueueworker-type).
 
 Les tâches actuellement disponibles sont :
  - `sendmail` pour envoyer un message ;
+ - `log` pour écrire un message dans les journaux du serveur ;
 
 On se rapportera à la [documentation complète des tâches](https://cozy.github.io/cozy-stack/workers.html) pour connaître les arguments de chaque tâche.
 
@@ -395,6 +432,64 @@ On se rapportera à la [documentation complète des tâches](https://cozy.github
   });
 
 ```
+
+#### Déclencher des tâches périodiques
+
+On peut lancer une tâche à la demande, comme dans l’exemple précédent, ou en réponse à un déclencheur (`trigger`). Il existe six types de déclencheurs :
+ - [`@cron`](https://cozy.github.io/cozy-stack/jobs.html#cron-syntax) pour exécuter la tâche périodiquement à des dates précises. Par exemple, pour exécuter une tâche tous les jours à 01:05:30, on utilisera `30 5 1 * * *`;
+ - [`@interval`](https://cozy.github.io/cozy-stack/jobs.html#interval-syntax) pour exécuter la tâche périodiquement à un certain intervalle de temps, par exemple tous les trois quart d’heure : `45m` ;
+ - [`@at`](https://cozy.github.io/cozy-stack/jobs.html#at-syntax) pour lancer le traitement une seule fois à une date définie, spécifiée au format ISO-8601, par exemple `2016-12-12T15:36:25.507Z` ;
+ - [`@in`](https://cozy.github.io/cozy-stack/jobs.html#in-syntax) pour lancer le traitement une seule fois après un certain intervalle, par exemple dans une heure : `1h` ;
+ - [`@event`](https://cozy.github.io/cozy-stack/jobs.html#event-syntax) pour déclencher une action en réponse à un évènement sur le serveur, par exemple une création de fichier : `io.cozy.files:CREATED` ou une suppression d’image : `io.cozy.files:DELETED:image/jpg:mime` ;
+ - [`@webhook`](https://cozy.github.io/cozy-stack/jobs.html#webook-syntax) pour déclencher un traitement via une URL. La création du déclencheur retourne l’URL permettant de l’appeler ;
+
+Pour pouvoir créer des déclencheurs, votre application doit en avoir demandé la permission, via le type d’objets `io.cozy.triggers`. On peut restreindre les permissions à certaines tâches. Par exemple, pour envoyer des messages périodique, on utilisera :
+```json
+{
+  "permissions": {
+    "mail-from-the-user": {
+      "description": "Required to send regularly mails from the user to his/her friends",
+        "type": "io.cozy.triggers",
+        "verbs": ["GET", "POST"],
+        "selector": "worker",
+        "values": ["sendmail"]
+    }
+  }
+}
+```
+
+On peut alors créer un déclencheur. Pour envoyer déclencher l’envoi d’un message dans cinq minutes, on utilisera :
+```javascript
+  fetchOptions = {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${app.cozyToken}`,
+      'Content-Type': 'application/json'
+    },
+    credentials: 'include',
+    body: JSON.stringify({
+      data: {
+        attributes: {
+          type: "@in",
+          arguments: "5m",
+          worker: "sendmail",
+          worker_arguments: { … }
+        }
+      }
+    })
+  };
+  fetch(`//${app.cozyDomain}/jobs/triggers`, fetchOptions)
+  .catch(function (error) {
+    throw error;
+  })
+  .then(function (response) {
+    console.log("Trigger created");
+  });
+
+```
+
+
+[Sommaire](#développer-une-application-pour-cozy-v3)
 
 ## Administrer l'instance de développement.
 
