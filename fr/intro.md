@@ -78,13 +78,13 @@ Quelques explications :
 
 Vous pouvez alors vous connecter à l'URL `http://app.cozy.tools:8080/#` pour commencer à tester votre application (après vous être identifié⋅e — le mot de passe par défaut est `cozy`).
 
-En procédant ainsi, il n'y a aucune persistance de données : chaque fois que vous relancez une machine virtuelle, elle utilisera une base de données vierge. Pour stocker la base de données et le système de fichiers du serveur sur votre machine locale, vous devez monter respectivement les dossiers `/usr/local/couchdb/data` et `/data/cozy-storage` du serveur sur des dossiers locaux : `-v ~/cozy/data/db:/usr/local/couchdb/data -v ~/cozy/data/storage":/data/cozy-storage`.
+En procédant ainsi, il n'y a aucune persistance de données : chaque fois que vous relancez une machine virtuelle, elle utilisera une base de données vierge. Pour stocker la base de données et le système de fichiers du serveur sur votre machine locale, vous devez monter respectivement les dossiers `/usr/local/couchdb/data` et `/data/cozy-storage` du serveur sur des dossiers locaux : `-v ~/cozy/data/db:/usr/local/couchdb/data -v ~/cozy/data/storage:/data/cozy-storage`.
 
 Enfin, pour accéder plus facilement à la machine virtuelle, je vous conseille de lui donner un nom : `--name=cozydev`. Vous pourrez ainsi lancer un shell dans l'instance avec `docker exec -ti cozydev /bin/bash`.
 
 La commande complète est donc :
 ```sh
-docker run --rm -it -p 8080:8080 -p 5984:5984 -p 8025:8025 -v $(pwd):/data/cozy-app -v ~/cozy/data/db:/usr/local/couchdb/data -v ~/cozy/data/storage":/data/cozy-storage --name=cozydev cozy/cozy-app-dev
+docker run --rm -it -p 8080:8080 -p 5984:5984 -p 8025:8025 -v $(pwd):/data/cozy-app -v ~/cozy/data/db:/usr/local/couchdb/data -v ~/cozy/data/storage:/data/cozy-storage --name=cozydev cozy/cozy-app-dev
 ```
 
 Une fois l'image lancée, quatre URL sont accessibles :
@@ -304,11 +304,24 @@ La bibliothèque `cozy.client` offre de nombreuses méthodes pour manipuler les 
  - `createDirectory()` pour créer un dossier ;
  - `updateAttributesById()` et `updateAttributesByPath()` pour modifier les meta-données ;
  - pour supprimer un fichier ou un dossier, on peut soit le déplacer dans une poubelle (`trashById()`) d’où il sera possible de le récupérer via `restoreById()`, soit l’éradiquer définitivement avec `destroyById (`trashById()`). On peut également afficher le contenu de la poubelle (`listTrash()`) et supprimer l’ensemble de son contenu (`clearTrash()`). 
+ - `statById(id)` et `statByPath(path)` donnent accès aux informations d’un fichier et, dans le cas d’un dossier, à l’ensemble des dossiers et fichiers qu’il contient ;
  - `downloadById(id)` et `downloadByPath(path)` permettent de télécharger un fichier ;
  - `getDownloadLinkById(id)` et `getDownloadLinkByPath(path)` retournent une URL de téléchargement valable une heure ;
  - `getArchiveLink(paths, name)` retourne une URL temporaire permettant de télécharger une archive Zip de tous les fichiers d’un dossier ;
- - on peut lier un fichier à un document avec `addReferencedFiles(doc, fileIds)` et lister tous les fichiers liés à un document avec `listReferencedFiles(doc)`.
+ - on peut lier un fichier à un document avec `cozy.client.data.addReferencedFiles(doc, fileIds)` et lister tous les fichiers liés à un document avec `cozy.client.data.listReferencedFiles(doc)`.
 
+Certains dossiers ont un identifiant pré-définis :
+ - `io.cozy.files.root-dir` désigne la racine du système de fichiers ;
+ - `io.cozy.files.trash-dir` désigne la corbeille.
+
+Les dossiers retournés par `statById()` et `statByPath()` possèdent une méthode `relations()` donnant accès à leur contenu. Par exemple, pour afficher les fichiers situés à la racine :
+```javascript
+cozy.client.files.statByPath("/")
+.then((dir) => {
+  console.log(dir);
+  console.log(dir.relations("contents"));
+})
+```
 
 #### Gérer le serveur
 
@@ -374,6 +387,7 @@ Il n'existe pas encore de méthode dans `cozy-client-js` pour créer et déclenc
 
 Les tâches actuellement disponibles sont :
  - `sendmail` pour envoyer un message ;
+ - `log` pour écrire un message dans les journaux du serveur ;
 
 On se rapportera à la [documentation complète des tâches](https://cozy.github.io/cozy-stack/workers.html) pour connaître les arguments de chaque tâche.
 
