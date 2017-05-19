@@ -95,12 +95,12 @@ Une fois l'image lancée, quatre URL sont accessibles :
 
 #### Tester plusieurs applications
 
-Vous pouvez également installer plusieurs applications. Il suffit pour cela de monter leurs dossiers respectifs dans des sous-dossiers de `/data/cozy-app`. Par exemple, pour tester files et photos, utilisez :
+Vous pouvez également installer plusieurs applications. Il suffit pour cela de monter leurs dossiers respectifs dans des sous-dossiers de `/data/cozy-app`. Par exemple, pour tester drive et photos, utilisez :
 ```sh
-docker run --rm -it -p 8080:8080 -p 5984:5984 -p 8025:8025 -v "~/cozy/files":/data/cozy-app/files" -v "~/cozy/photos:/data-cozy-app/photos" --name=cozydev cozy/cozy-app-dev
+docker run --rm -it -p 8080:8080 -p 5984:5984 -p 8025:8025 -v "~/cozy/drive":/data/cozy-app/drive" -v "~/cozy/photos:/data-cozy-app/photos" --name=cozydev cozy/cozy-app-dev
 ```
 
-Les applications seront alors disponibles sur `http://files.cozy.tools:8080/` et `http://photos.cozy.tools:8080`.
+Les applications seront alors disponibles sur `http://drive.cozy.tools:8080/` et `http://photos.cozy.tools:8080`.
 
 [Sommaire](#développer-une-application-pour-cozy-v3)
 
