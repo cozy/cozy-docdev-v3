@@ -5,8 +5,6 @@
 
 ## Table des matières
 
-$$("[id]").forEach( e => {if (e.tagName.substr(0, 1) === 'H') console.log(`* [${e.innerText}](#${e.id})`)})
-
 * [Présentation de la plateforme](#présentation-de-la-plateforme)
 * [Installer l’environnement](#installer-lenvironnement)
   * [Pré-requis](#pré-requis)
