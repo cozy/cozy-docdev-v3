@@ -11,8 +11,12 @@
 
 ## French
 
- - [Introduction](fr/intro.md) ;
-
+ - Tutoriels :
+   - [introduction au développement pour Cozy](fr/intro.md) ;
+   - créer une application (à venir) ;
+   - créer un connecteur (à venir) ;
+ - exemples (à venir) ;
+ - [référence complète des API](fr/API.md) ;
 
 ## What is Cozy?
 
